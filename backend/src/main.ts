@@ -14,8 +14,8 @@ async function bootstrap() {
 
     // Configuración de Swagger
     const config = new DocumentBuilder()
-        .setTitle('API de Gestor de Gastos')
-        .setDescription('Documentación de la API')
+        .setTitle('Expense Manager API')
+        .setDescription('API Documentation')
         .setVersion('1.0')
         .addBearerAuth()
         .build();
