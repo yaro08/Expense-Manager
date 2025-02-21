@@ -13,3 +13,4 @@ yarn-error.log*
 /backend/dist/
 .idea/*
 /frontend/node_modules/
+/backend/coverage/
