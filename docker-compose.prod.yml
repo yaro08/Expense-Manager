@@ -34,7 +34,7 @@ services:
     container_name: gestor-gastos-web-prod
     build:
       context: ./frontend
-      dockerfile: Dockerfile
+      dockerfile: frontend/Dockerfile
     ports:
       - "80:80"
     depends_on:
