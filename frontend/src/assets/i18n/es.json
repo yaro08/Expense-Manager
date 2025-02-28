@@ -1,0 +1,54 @@
+{
+  "DASHBOARD": {
+    "TITLE": "Panel de Control",
+    "STATS": {
+      "TOTAL_EXPENSES": "Gastos Totales",
+      "TOTAL_INCOME": "Ingresos Totales",
+      "BALANCE": "Balance",
+      "MOST_EXPENSIVE_CATEGORY": "Categoría Más Costosa"
+    },
+    "FILTERS": {
+      "DATE_RANGE": "Rango de Fechas",
+      "CATEGORY": "Categoría",
+      "ALL": "Todos",
+      "TODAY": "Hoy",
+      "WEEK": "Semana",
+      "MONTH": "Mes",
+      "YEAR": "Año"
+    },
+    "CHARTS": {
+      "EXPENSES_BY_CATEGORY": "Gastos por Categoría",
+      "MONTHLY_EXPENSES": "Gastos Mensuales"
+    },
+    "TRANSACTIONS": {
+      "TITLE": "Transacciones Recientes",
+      "ADD_NEW": "Añadir Nueva Transacción",
+      "EDIT": "Editar Transacción",
+      "DESCRIPTION": "Descripción",
+      "AMOUNT": "Cantidad",
+      "CATEGORY": "Categoría",
+      "DATE": "Fecha",
+      "ACTIONS": "Acciones",
+      "SAVE": "Guardar",
+      "CANCEL": "Cancelar",
+      "DELETE": "Eliminar",
+      "DELETE_CONFIRM": "¿Estás seguro de que deseas eliminar esta transacción?"
+    },
+    "CATEGORIES": {
+      "FOOD": "Alimentación",
+      "TRANSPORT": "Transporte",
+      "ENTERTAINMENT": "Entretenimiento",
+      "UTILITIES": "Servicios",
+      "HEALTH": "Salud",
+      "SHOPPING": "Compras",
+      "EDUCATION": "Educación",
+      "SERVICES": "Servicios",
+      "INCOME": "Ingresos",
+      "OTHER": "Otros"
+    }
+  },
+  "LANGUAGE": {
+    "EN": "Inglés",
+    "ES": "Español"
+  }
+}

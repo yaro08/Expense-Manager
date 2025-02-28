@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  backend:
+    container_name: gestor-gastos-api
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"
+    environment:
+      DB_HOST: host.docker.internal
+      DB_PORT: 3306
+      DB_USER: ${DB_USER:-root}
+      DB_PASSWORD: ${DB_PASSWORD:-root}
+      DB_NAME: ${DB_NAME:-gestor_gastos}
+      NODE_ENV: development
+    volumes:
+      - ./backend:/usr/src/app
+      - /usr/src/app/node_modules
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - gestor-network
+
+  frontend:
+    container_name: gestor-gastos-web
+    build:
+      context: ./frontend
+      dockerfile: frontend/Dockerfile.dev
+    ports:
+      - "4200:4200"
+    volumes:
+      - ./frontend:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      - backend
+    networks:
+      - gestor-network
+
+networks:
+  gestor-network:
+    driver: bridge

@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  postgres:
+    container_name: gestor-gastos-db-prod
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${DB_NAME:-gestor_gastos}
+    volumes:
+      - postgres_data_prod:/var/lib/postgresql/data
+    networks:
+      - gestor-network-prod
+
+  backend:
+    container_name: gestor-gastos-api-prod
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      DB_NAME: ${DB_NAME:-gestor_gastos}
+      NODE_ENV: production
+    depends_on:
+      - postgres
+    networks:
+      - gestor-network-prod
+
+  frontend:
+    container_name: gestor-gastos-web-prod
+    build:
+      context: ./frontend
+      dockerfile: frontend/Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - gestor-network-prod
+
+networks:
+  gestor-network-prod:
+    driver: bridge
+
+volumes:
+  postgres_data_prod:
