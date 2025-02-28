@@ -3,20 +3,12 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 
-export interface DashboardStats {
-  totalExpenses: number;
-  totalIncome: number;
-  balance: number;
-  mostExpensiveCategory: string;
-  recentTransactions: Transaction[];
-}
-
 export interface Transaction {
-  id: number;
+  id: string;
   description: string;
   amount: number;
-  date: Date;
-  category?: string;
+  category: string;
+  date: string | Date;
 }
 
 export interface CategoryExpense {
@@ -29,11 +21,19 @@ export interface MonthlyExpense {
   amount: number;
 }
 
+export interface DashboardStats {
+  totalExpenses: number;
+  totalIncome: number;
+  balance: number;
+  mostExpensiveCategory: string;
+  recentTransactions: Transaction[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class DashboardService {
-  private apiUrl = `${environment.apiUrl}/transactions`;
+  private apiUrl = 'api/transactions'; // Replace with actual API URL when available
 
   constructor(private http: HttpClient) {}
 
@@ -51,6 +51,19 @@ export class DashboardService {
 
   getRecentTransactions(limit: number = 5): Observable<Transaction[]> {
     return this.http.get<Transaction[]>(`${this.apiUrl}/recent?limit=${limit}`);
+  }
+
+  // Transaction CRUD operations
+  addTransaction(transaction: Transaction): Observable<Transaction> {
+    return this.http.post<Transaction>(`${this.apiUrl}`, transaction);
+  }
+
+  updateTransaction(transaction: Transaction): Observable<Transaction> {
+    return this.http.put<Transaction>(`${this.apiUrl}/${transaction.id}`, transaction);
+  }
+
+  deleteTransaction(id: string): Observable<boolean> {
+    return this.http.delete<boolean>(`${this.apiUrl}/${id}`);
   }
 
   // Método para transformar los datos para Chart.js

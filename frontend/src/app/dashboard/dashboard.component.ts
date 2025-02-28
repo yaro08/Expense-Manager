@@ -1,20 +1,24 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { NgChartsModule } from 'ng2-charts';
 import { ChartConfiguration } from 'chart.js';
-import { DashboardStats, CategoryExpense, MonthlyExpense } from './dashboard.service';
+import { DashboardStats, CategoryExpense, MonthlyExpense, Transaction } from './dashboard.service';
 import { DashboardMockService } from './dashboard-mock.service';
 import { Subject, takeUntil } from 'rxjs';
+import { TranslateModule } from '@ngx-translate/core';
+import { LanguageSelectorComponent } from '../shared/components/language-selector/language-selector.component';
+import { TranslationService } from '../core/services/translation.service';
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   standalone: true,
-  imports: [CommonModule, FormsModule, NgChartsModule, DatePipe],
+  imports: [CommonModule, FormsModule, NgChartsModule, DatePipe, TranslateModule, LanguageSelectorComponent],
 })
 export class DashboardComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
+  @ViewChild('transactionForm') transactionForm!: NgForm;
 
   // Datos para el gráfico de gastos por categoría
   public pieChartData: ChartConfiguration<'pie'>['data'] = {
@@ -72,7 +76,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
   public selectedDateRange = 'month';
   public selectedCategory = 'all';
 
-  constructor(private dashboardService: DashboardMockService) {}
+  // Transaction management
+  public editMode = false;
+  public currentTransaction: Transaction = this.getEmptyTransaction();
+
+  constructor(private dashboardService: DashboardMockService, private translationService: TranslationService) {}
 
   ngOnInit(): void {
     this.loadDashboardData();
@@ -114,5 +122,70 @@ export class DashboardComponent implements OnInit, OnDestroy {
   onCategoryChange(category: string): void {
     this.selectedCategory = category;
     this.loadDashboardData(this.selectedDateRange, category);
+  }
+
+  // Transaction management methods
+  getEmptyTransaction(): Transaction {
+    return {
+      id: '',
+      description: '',
+      amount: 0,
+      category: 'food',
+      date: new Date().toISOString().split('T')[0]
+    };
+  }
+
+  editTransaction(transaction: Transaction): void {
+    this.editMode = true;
+    // Create a copy to avoid direct reference manipulation
+    this.currentTransaction = {
+      ...transaction,
+      // Ensure date is in the right format for the date input
+      date: transaction.date instanceof Date
+        ? transaction.date.toISOString().split('T')[0]
+        : (typeof transaction.date === 'string'
+          ? (transaction.date.includes('T')
+            ? transaction.date.split('T')[0]
+            : transaction.date)
+          : new Date().toISOString().split('T')[0])
+    };
+  }
+
+  deleteTransaction(id: string): void {
+    const confirmMessage = this.translationService.instant('DASHBOARD.TRANSACTIONS.DELETE_CONFIRM');
+    if (confirm(confirmMessage)) {
+      this.dashboardService.deleteTransaction(id)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(() => {
+          // Reload data after deletion
+          this.loadDashboardData(this.selectedDateRange, this.selectedCategory);
+        });
+    }
+  }
+
+  saveTransaction(): void {
+    if (this.transactionForm && this.transactionForm.invalid) {
+      return; // Do not proceed if form is invalid
+    }
+
+    // Handle the save operation
+    const saveOperation = this.editMode
+      ? this.dashboardService.updateTransaction(this.currentTransaction)
+      : this.dashboardService.addTransaction(this.currentTransaction);
+
+    saveOperation.pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        // Reset form and reload data
+        this.cancelEdit();
+        this.loadDashboardData(this.selectedDateRange, this.selectedCategory);
+      });
+  }
+
+  cancelEdit(): void {
+    this.editMode = false;
+    this.currentTransaction = this.getEmptyTransaction();
+    if (this.transactionForm) {
+      this.transactionForm.resetForm();
+    }
   }
 }

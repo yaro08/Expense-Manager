@@ -7,27 +7,69 @@ import { DashboardStats, CategoryExpense, MonthlyExpense, Transaction } from './
   providedIn: 'root'
 })
 export class DashboardMockService {
+  // Mock data for transactions
+  private transactions: Transaction[] = [
+    {
+      id: '1',
+      description: 'Compra supermercado',
+      amount: -85.50,
+      category: 'food',
+      date: '2025-02-20'
+    },
+    {
+      id: '2',
+      description: 'Gasolina',
+      amount: -45.00,
+      category: 'transport',
+      date: '2025-02-21'
+    },
+    {
+      id: '3',
+      description: 'Cine',
+      amount: -28.00,
+      category: 'entertainment',
+      date: '2025-02-22'
+    },
+    {
+      id: '4',
+      description: 'Factura electricidad',
+      amount: -65.75,
+      category: 'services',
+      date: '2025-02-23'
+    },
+    {
+      id: '5',
+      description: 'Nómina',
+      amount: 1250.00,
+      category: 'income',
+      date: '2025-02-15'
+    }
+  ];
 
-  constructor() { }
+  constructor() {}
 
-  getDashboardStats(dateRange: string = 'month'): Observable<DashboardStats> {
-    const multiplier = dateRange === 'week' ? 0.25 : dateRange === 'year' ? 12 : 1;
+  // Get dashboard stats with mock data
+  getDashboardStats(dateRange: string): Observable<DashboardStats> {
+    // Calculate totals
+    const totalExpenses = this.transactions
+      .filter(t => t.amount < 0)
+      .reduce((acc, curr) => acc + Math.abs(curr.amount), 0);
 
+    const totalIncome = this.transactions
+      .filter(t => t.amount > 0)
+      .reduce((acc, curr) => acc + curr.amount, 0);
+
+    // Return mock data with a slight delay to simulate API call
     return of({
-      totalExpenses: 1050 * multiplier,
-      totalIncome: 2000 * multiplier,
-      balance: 950 * multiplier,
-      mostExpensiveCategory: 'Servicios',
-      recentTransactions: [
-        { id: 1, description: 'Supermercado', amount: -150, date: new Date() },
-        { id: 2, description: 'Gasolina', amount: -80, date: new Date(Date.now() - 86400000) },
-        { id: 3, description: 'Netflix', amount: -15, date: new Date(Date.now() - 172800000) },
-        { id: 4, description: 'Salario', amount: 2000, date: new Date(Date.now() - 259200000) },
-        { id: 5, description: 'Restaurante', amount: -60, date: new Date(Date.now() - 345600000) }
-      ]
-    }).pipe(delay(500)); // Simular retraso de red
+      totalExpenses: totalExpenses,
+      totalIncome: totalIncome,
+      balance: totalIncome - totalExpenses,
+      mostExpensiveCategory: 'food',
+      recentTransactions: this.transactions
+    }).pipe(delay(500));
   }
 
+  // Get expenses by category
   getCategoryExpenses(dateRange: string = 'month'): Observable<CategoryExpense[]> {
     const multiplier = dateRange === 'week' ? 0.25 : dateRange === 'year' ? 12 : 1;
 
@@ -36,9 +78,10 @@ export class DashboardMockService {
       { category: 'Transporte', amount: 200 * multiplier },
       { category: 'Entretenimiento', amount: 150 * multiplier },
       { category: 'Servicios', amount: 400 * multiplier }
-    ]).pipe(delay(500)); // Simular retraso de red
+    ]).pipe(delay(500));
   }
 
+  // Get monthly expenses
   getMonthlyExpenses(year: number): Observable<MonthlyExpense[]> {
     return of([
       { month: 'Ene', amount: 650 },
@@ -53,47 +96,72 @@ export class DashboardMockService {
       { month: 'Oct', amount: 900 },
       { month: 'Nov', amount: 1100 },
       { month: 'Dic', amount: 1500 }
-    ]).pipe(delay(500)); // Simular retraso de red
+    ]).pipe(delay(500));
   }
 
-  getRecentTransactions(limit: number = 5): Observable<Transaction[]> {
-    return of([
-      { id: 1, description: 'Supermercado', amount: -150, date: new Date() },
-      { id: 2, description: 'Gasolina', amount: -80, date: new Date(Date.now() - 86400000) },
-      { id: 3, description: 'Netflix', amount: -15, date: new Date(Date.now() - 172800000) },
-      { id: 4, description: 'Salario', amount: 2000, date: new Date(Date.now() - 259200000) },
-      { id: 5, description: 'Restaurante', amount: -60, date: new Date(Date.now() - 345600000) }
-    ].slice(0, limit)).pipe(delay(500)); // Simular retraso de red
-  }
-
-  // Método para transformar los datos para Chart.js
+  // Transform category data for pie chart
   transformCategoryDataForChart(data: CategoryExpense[]): any {
     return {
       labels: data.map(item => item.category),
       datasets: [{
         data: data.map(item => item.amount),
         backgroundColor: [
-          'rgba(255, 99, 132, 0.8)',
-          'rgba(54, 162, 235, 0.8)',
-          'rgba(255, 206, 86, 0.8)',
-          'rgba(75, 192, 192, 0.8)',
-          'rgba(153, 102, 255, 0.8)',
+          'rgba(255, 99, 132, 0.7)',
+          'rgba(54, 162, 235, 0.7)',
+          'rgba(255, 206, 86, 0.7)',
+          'rgba(75, 192, 192, 0.7)'
         ]
       }]
     };
   }
 
+  // Transform monthly data for line chart
   transformMonthlyDataForChart(data: MonthlyExpense[]): any {
     return {
       labels: data.map(item => item.month),
-      datasets: [{
-        label: 'Gastos Mensuales',
-        data: data.map(item => item.amount),
-        fill: true,
-        tension: 0.5,
-        borderColor: 'rgb(75, 192, 192)',
-        backgroundColor: 'rgba(75, 192, 192, 0.3)'
-      }]
+      datasets: [
+        {
+          data: data.map(item => item.amount),
+          label: 'Gastos',
+          fill: true,
+          tension: 0.5,
+          borderColor: 'rgb(75, 192, 192)',
+          backgroundColor: 'rgba(75, 192, 192, 0.3)'
+        }
+      ]
     };
+  }
+
+  // Transaction management methods
+  getTransactions(): Observable<Transaction[]> {
+    return of(this.transactions).pipe(delay(300));
+  }
+
+  addTransaction(transaction: Transaction): Observable<Transaction> {
+    // Create a new transaction with an ID
+    const newTransaction: Transaction = {
+      ...transaction,
+      id: Math.random().toString(36).substr(2, 9) // Simple ID generation
+    };
+
+    this.transactions.unshift(newTransaction);
+    return of(newTransaction).pipe(delay(300));
+  }
+
+  updateTransaction(transaction: Transaction): Observable<Transaction> {
+    const index = this.transactions.findIndex(t => t.id === transaction.id);
+    if (index !== -1) {
+      this.transactions[index] = { ...transaction };
+    }
+    return of(transaction).pipe(delay(300));
+  }
+
+  deleteTransaction(id: string): Observable<boolean> {
+    const index = this.transactions.findIndex(t => t.id === id);
+    if (index !== -1) {
+      this.transactions.splice(index, 1);
+      return of(true).pipe(delay(300));
+    }
+    return of(false).pipe(delay(300));
   }
 }

@@ -1,62 +1,78 @@
-<div class="page-container bg-gray-50 min-h-screen">
-  <!-- Filtros -->
-  <div class="mb-6 flex space-x-4">
-    <div class="flex-1">
-      <label class="form-label">Rango de fechas</label>
-      <select
-        [(ngModel)]="selectedDateRange"
-        (change)="onDateRangeChange(selectedDateRange)"
-        class="input-field">
-        <option value="week">Esta semana</option>
-        <option value="month">Este mes</option>
-        <option value="year">Este año</option>
-      </select>
-    </div>
-    <div class="flex-1">
-      <label class="form-label">Categoría</label>
-      <select
-        [(ngModel)]="selectedCategory"
-        (change)="onCategoryChange(selectedCategory)"
-        class="input-field">
-        <option value="all">Todas</option>
-        <option value="food">Comida</option>
-        <option value="transport">Transporte</option>
-        <option value="entertainment">Entretenimiento</option>
-        <option value="services">Servicios</option>
-      </select>
-    </div>
+<div class="dashboard-container p-4">
+  <div class="header flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold">{{ 'DASHBOARD.TITLE' | translate }}</h1>
+    <app-language-selector></app-language-selector>
   </div>
 
-  <!-- Resumen de estadísticas -->
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-    <div class="card bg-white">
-      <h3 class="text-lg font-semibold text-gray-700 mb-2">Total Gastos</h3>
-      <p class="text-2xl font-bold text-red-600">€{{ stats.totalExpenses }}</p>
+  <!-- Stats Cards -->
+  <div class="stats-cards grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+    <div class="stat-card bg-white p-4 rounded shadow">
+      <h3 class="text-gray-500">{{ 'DASHBOARD.STATS.TOTAL_EXPENSES' | translate }}</h3>
+      <p class="text-2xl font-bold text-red-500">{{ stats.totalExpenses | currency }}</p>
     </div>
-    <div class="card bg-white">
-      <h3 class="text-lg font-semibold text-gray-700 mb-2">Total Ingresos</h3>
-      <p class="text-2xl font-bold text-green-600">€{{ stats.totalIncome }}</p>
+    <div class="stat-card bg-white p-4 rounded shadow">
+      <h3 class="text-gray-500">{{ 'DASHBOARD.STATS.TOTAL_INCOME' | translate }}</h3>
+      <p class="text-2xl font-bold text-green-500">{{ stats.totalIncome | currency }}</p>
     </div>
-    <div class="card bg-white">
-      <h3 class="text-lg font-semibold text-gray-700 mb-2">Balance</h3>
-      <p class="text-2xl font-bold" [class.text-green-600]="stats.balance >= 0" [class.text-red-600]="stats.balance < 0">
-        €{{ stats.balance }}
+    <div class="stat-card bg-white p-4 rounded shadow">
+      <h3 class="text-gray-500">{{ 'DASHBOARD.STATS.BALANCE' | translate }}</h3>
+      <p class="text-2xl font-bold" [ngClass]="stats.balance >= 0 ? 'text-green-500' : 'text-red-500'">
+        {{ stats.balance | currency }}
       </p>
     </div>
+    <div class="stat-card bg-white p-4 rounded shadow">
+      <h3 class="text-gray-500">{{ 'DASHBOARD.STATS.MOST_EXPENSIVE_CATEGORY' | translate }}</h3>
+      <p class="text-2xl font-bold">{{ 'DASHBOARD.CATEGORIES.' + stats.mostExpensiveCategory.toUpperCase() | translate }}</p>
+    </div>
   </div>
 
-  <!-- Gráficos -->
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-    <div class="card">
-      <h3 class="text-lg font-semibold text-gray-700 mb-4">Gastos por Categoría</h3>
+  <!-- Filters -->
+  <div class="filters bg-white p-4 rounded shadow mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label class="block text-gray-700 mb-2">{{ 'DASHBOARD.FILTERS.DATE_RANGE' | translate }}</label>
+        <select
+          class="w-full p-2 border rounded"
+          [(ngModel)]="selectedDateRange"
+          (change)="onDateRangeChange(selectedDateRange)">
+          <option value="today">{{ 'DASHBOARD.FILTERS.TODAY' | translate }}</option>
+          <option value="week">{{ 'DASHBOARD.FILTERS.WEEK' | translate }}</option>
+          <option value="month">{{ 'DASHBOARD.FILTERS.MONTH' | translate }}</option>
+          <option value="year">{{ 'DASHBOARD.FILTERS.YEAR' | translate }}</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-gray-700 mb-2">{{ 'DASHBOARD.FILTERS.CATEGORY' | translate }}</label>
+        <select
+          class="w-full p-2 border rounded"
+          [(ngModel)]="selectedCategory"
+          (change)="onCategoryChange(selectedCategory)">
+          <option value="all">{{ 'DASHBOARD.FILTERS.ALL' | translate }}</option>
+          <option value="food">{{ 'DASHBOARD.CATEGORIES.FOOD' | translate }}</option>
+          <option value="transport">{{ 'DASHBOARD.CATEGORIES.TRANSPORT' | translate }}</option>
+          <option value="entertainment">{{ 'DASHBOARD.CATEGORIES.ENTERTAINMENT' | translate }}</option>
+          <option value="utilities">{{ 'DASHBOARD.CATEGORIES.UTILITIES' | translate }}</option>
+          <option value="health">{{ 'DASHBOARD.CATEGORIES.HEALTH' | translate }}</option>
+          <option value="shopping">{{ 'DASHBOARD.CATEGORIES.SHOPPING' | translate }}</option>
+          <option value="education">{{ 'DASHBOARD.CATEGORIES.EDUCATION' | translate }}</option>
+          <option value="other">{{ 'DASHBOARD.CATEGORIES.OTHER' | translate }}</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <div class="charts grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+    <div class="chart-container bg-white p-4 rounded shadow">
+      <h2 class="text-xl font-bold mb-4">{{ 'DASHBOARD.CHARTS.EXPENSES_BY_CATEGORY' | translate }}</h2>
       <canvas baseChart
         [data]="pieChartData"
         [options]="pieChartOptions"
         [type]="'pie'">
       </canvas>
     </div>
-    <div class="card">
-      <h3 class="text-lg font-semibold text-gray-700 mb-4">Evolución de Gastos</h3>
+    <div class="chart-container bg-white p-4 rounded shadow">
+      <h2 class="text-xl font-bold mb-4">{{ 'DASHBOARD.CHARTS.MONTHLY_EXPENSES' | translate }}</h2>
       <canvas baseChart
         [data]="lineChartData"
         [options]="lineChartOptions"
@@ -65,30 +81,112 @@
     </div>
   </div>
 
-  <!-- Transacciones Recientes -->
-  <div class="card">
-    <h3 class="text-lg font-semibold text-gray-700 mb-4">Transacciones Recientes</h3>
+  <!-- Transactions -->
+  <div class="transactions bg-white p-4 rounded shadow mb-6">
+    <h2 class="text-xl font-bold mb-4">{{ 'DASHBOARD.TRANSACTIONS.TITLE' | translate }}</h2>
     <div class="overflow-x-auto">
-      <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
+      <table class="min-w-full bg-white">
+        <thead>
           <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descripción</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Monto</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+            <th class="py-2 px-4 border-b text-left">{{ 'DASHBOARD.TRANSACTIONS.DESCRIPTION' | translate }}</th>
+            <th class="py-2 px-4 border-b text-left">{{ 'DASHBOARD.TRANSACTIONS.AMOUNT' | translate }}</th>
+            <th class="py-2 px-4 border-b text-left">{{ 'DASHBOARD.TRANSACTIONS.CATEGORY' | translate }}</th>
+            <th class="py-2 px-4 border-b text-left">{{ 'DASHBOARD.TRANSACTIONS.DATE' | translate }}</th>
+            <th class="py-2 px-4 border-b text-left">{{ 'DASHBOARD.TRANSACTIONS.ACTIONS' | translate }}</th>
           </tr>
         </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
+        <tbody>
           <tr *ngFor="let transaction of stats.recentTransactions">
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ transaction.description }}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm" [class.text-green-600]="transaction.amount >= 0" [class.text-red-600]="transaction.amount < 0">
-              €{{ transaction.amount }}
+            <td class="py-2 px-4 border-b">{{ transaction.description }}</td>
+            <td class="py-2 px-4 border-b" [ngClass]="transaction.amount < 0 ? 'text-red-500' : 'text-green-500'">
+              {{ transaction.amount | currency }}
             </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-              {{ transaction.date | date:'shortDate' }}
+            <td class="py-2 px-4 border-b">{{ 'DASHBOARD.CATEGORIES.' + transaction.category.toUpperCase() | translate }}</td>
+            <td class="py-2 px-4 border-b">{{ transaction.date | date }}</td>
+            <td class="py-2 px-4 border-b">
+              <button
+                class="text-blue-500 hover:text-blue-700 mr-2"
+                (click)="editTransaction(transaction)">
+                {{ 'DASHBOARD.TRANSACTIONS.EDIT' | translate }}
+              </button>
+              <button
+                class="text-red-500 hover:text-red-700"
+                (click)="deleteTransaction(transaction.id)">
+                {{ 'DASHBOARD.TRANSACTIONS.DELETE' | translate }}
+              </button>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
+  </div>
+
+  <!-- Add/Edit Transaction Form -->
+  <div class="transaction-form bg-white p-4 rounded shadow">
+    <h2 class="text-xl font-bold mb-4">
+      {{ editMode ? ('DASHBOARD.TRANSACTIONS.EDIT' | translate) : ('DASHBOARD.TRANSACTIONS.ADD_NEW' | translate) }}
+    </h2>
+    <form #transactionForm="ngForm" (ngSubmit)="saveTransaction()">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div>
+          <label class="block text-gray-700 mb-2">{{ 'DASHBOARD.TRANSACTIONS.DESCRIPTION' | translate }}</label>
+          <input
+            type="text"
+            class="w-full p-2 border rounded"
+            name="description"
+            [(ngModel)]="currentTransaction.description"
+            required>
+        </div>
+        <div>
+          <label class="block text-gray-700 mb-2">{{ 'DASHBOARD.TRANSACTIONS.AMOUNT' | translate }}</label>
+          <input
+            type="number"
+            class="w-full p-2 border rounded"
+            name="amount"
+            [(ngModel)]="currentTransaction.amount"
+            required>
+        </div>
+        <div>
+          <label class="block text-gray-700 mb-2">{{ 'DASHBOARD.TRANSACTIONS.CATEGORY' | translate }}</label>
+          <select
+            class="w-full p-2 border rounded"
+            name="category"
+            [(ngModel)]="currentTransaction.category"
+            required>
+            <option value="food">{{ 'DASHBOARD.CATEGORIES.FOOD' | translate }}</option>
+            <option value="transport">{{ 'DASHBOARD.CATEGORIES.TRANSPORT' | translate }}</option>
+            <option value="entertainment">{{ 'DASHBOARD.CATEGORIES.ENTERTAINMENT' | translate }}</option>
+            <option value="utilities">{{ 'DASHBOARD.CATEGORIES.UTILITIES' | translate }}</option>
+            <option value="health">{{ 'DASHBOARD.CATEGORIES.HEALTH' | translate }}</option>
+            <option value="shopping">{{ 'DASHBOARD.CATEGORIES.SHOPPING' | translate }}</option>
+            <option value="education">{{ 'DASHBOARD.CATEGORIES.EDUCATION' | translate }}</option>
+            <option value="other">{{ 'DASHBOARD.CATEGORIES.OTHER' | translate }}</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-gray-700 mb-2">{{ 'DASHBOARD.TRANSACTIONS.DATE' | translate }}</label>
+          <input
+            type="date"
+            class="w-full p-2 border rounded"
+            name="date"
+            [(ngModel)]="currentTransaction.date"
+            required>
+        </div>
+      </div>
+      <div class="flex justify-end space-x-3">
+        <button
+          *ngIf="editMode"
+          type="button"
+          (click)="cancelEdit()"
+          class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">
+          {{ 'DASHBOARD.TRANSACTIONS.CANCEL' | translate }}
+        </button>
+        <button
+          type="submit"
+          class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+          {{ editMode ? ('DASHBOARD.TRANSACTIONS.SAVE' | translate) : ('DASHBOARD.TRANSACTIONS.ADD_NEW' | translate) }}
+        </button>
+      </div>
+    </form>
   </div>
 </div>
