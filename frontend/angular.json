@@ -30,7 +30,9 @@
                 "glob": "**/*",
                 "input": "public",
                 "output": "/"
-              }
+              },
+              "src/assets",
+              "src/assets/i18n"
             ],
             "styles": [
               "src/styles.scss"
